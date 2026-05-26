@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { getUserId } from "@/lib/identity/getUserId";
 
 function corruptText(text: string, level: number) {
   if (!text) return "";
@@ -36,11 +37,13 @@ export default function Page() {
   }, []);
 
   async function submit() {
+    const userId = getUserId();
+
     const res = await fetch("/api/guess", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        userId: "demo",
+        userId,
         guess,
       }),
     });
@@ -48,6 +51,7 @@ export default function Page() {
     const data = await res.json();
 
     setFeedback(data.correct ? "SIGNAL STABILIZED" : "DISTORTION INCREASED");
+
     setHistory((h) => [...h, guess]);
 
     if (!data.correct) {
@@ -91,10 +95,12 @@ export default function Page() {
           <span className="opacity-70">DAILY SIGNAL ACTIVE</span>
         </div>
 
-        <div className="text-xs opacity-40 mt-1">{puzzle?.date}</div>
+        <div className="text-xs opacity-40 mt-1">
+          {puzzle?.date ?? "loading..."}
+        </div>
 
         <div className={`text-xs mt-2 ${signalClass}`}>
-          difficulty: {puzzle?.difficulty}
+          difficulty: {puzzle?.difficulty ?? "unknown"}
         </div>
       </div>
 
@@ -116,7 +122,7 @@ export default function Page() {
         </div>
 
         <div className="text-xs opacity-50">
-          cipher protocol: {puzzle?.cipher}
+          cipher protocol: {puzzle?.cipher ?? "unknown"}
         </div>
       </div>
 

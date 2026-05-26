@@ -1,44 +1,60 @@
-import nacl from "tweetnacl";
-
-const PUBLIC_KEY = process.env.DISCORD_PUBLIC_KEY!;
-
-function verify(req: Request, body: string) {
-  const signature = req.headers.get("x-signature-ed25519")!;
-  const timestamp = req.headers.get("x-signature-timestamp")!;
-
-  const isValid = nacl.sign.detached.verify(
-    Buffer.from(timestamp + body),
-    Buffer.from(signature, "hex"),
-    Buffer.from(PUBLIC_KEY, "hex"),
-  );
-
-  return isValid;
-}
+import { runSimulation } from "@/lib/sim/core";
+import { generateDaily } from "@/lib/game/daily";
 
 export async function POST(req: Request) {
-  const body = await req.text();
+  const body = await req.json();
 
-  // 🔥 VERIFY DISCORD SIGNATURE
-  if (!verify(req, body)) {
-    return new Response("invalid request", { status: 401 });
-  }
-
-  const json = JSON.parse(body);
-
-  // PING
-  if (json.type === 1) {
+  // Discord verification
+  if (body.type === 1) {
     return Response.json({ type: 1 });
   }
 
-  // COMMAND
-  if (json.type === 2) {
+  const command = body.data?.name;
+
+  if (command !== "cipherline") {
     return Response.json({
       type: 4,
       data: {
-        content: "cipherline online",
+        content: "Unknown signal.",
       },
     });
   }
 
-  return new Response("ok", { status: 200 });
+  const userId = body.member?.user?.id;
+
+  const date = new Date().toISOString().slice(0, 10);
+
+  const puzzle = generateDaily(date);
+
+  // no guess yet, just fetch state
+  const result = await runSimulation({
+    userId,
+    guess: "",
+    date,
+  });
+
+  return Response.json({
+    type: 4,
+    data: {
+      content: `
+📡 DAILY SIGNAL
+
+difficulty: ${puzzle.difficulty}
+cipher: ${puzzle.cipher}
+
+status: ${result.signalState}
+
+attempts: ${result.attempts}/6
+
+encrypted:
+${puzzle.encrypted}
+
+hint:
+${result.revealed || "signal fragment unavailable"}
+
+play:
+https://cipher-line.vercel.app
+      `,
+    },
+  });
 }

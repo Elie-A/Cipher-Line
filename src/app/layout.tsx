@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import DiscordProvider from "@/components/DiscordProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -59,26 +60,30 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full bg-zinc-950 text-zinc-100 font-mono">
-        <div className="min-h-screen flex flex-col items-center">
-          {/* HEADER */}
-          <header className="w-full max-w-2xl px-4 py-4 border-b border-zinc-800">
-            <div className="flex justify-between items-center">
-              <Logo />
+        <DiscordProvider>
+          <div className="min-h-screen flex flex-col items-center">
+            {/* HEADER */}
+            <header className="w-full max-w-2xl px-4 py-4 border-b border-zinc-800">
+              <div className="flex justify-between items-center">
+                <Logo />
 
-              <span className="text-xs opacity-50 tracking-widest">
-                DAILY SIGNAL
-              </span>
-            </div>
-          </header>
+                <span className="text-xs opacity-50 tracking-widest">
+                  DAILY SIGNAL
+                </span>
+              </div>
+            </header>
 
-          {/* MAIN */}
-          <main className="flex-1 w-full max-w-2xl px-4 py-6">{children}</main>
+            {/* MAIN */}
+            <main className="flex-1 w-full max-w-2xl px-4 py-6">
+              {children}
+            </main>
 
-          {/* FOOTER */}
-          <footer className="w-full max-w-2xl px-4 py-4 border-t border-zinc-800 text-xs opacity-40">
-            decrypt • survive • repeat
-          </footer>
-        </div>
+            {/* FOOTER */}
+            <footer className="w-full max-w-2xl px-4 py-4 border-t border-zinc-800 text-xs opacity-40">
+              decrypt • survive • repeat
+            </footer>
+          </div>
+        </DiscordProvider>
       </body>
     </html>
   );
