@@ -1,49 +1,44 @@
-// import { generateDaily } from "@/lib/game/daily";
+import nacl from "tweetnacl";
 
-// export async function POST(req: Request) {
-//   try {
-//     const body = await req.json().catch(() => ({}));
+const PUBLIC_KEY = process.env.DISCORD_PUBLIC_KEY!;
 
-//     // Discord PING
-//     if (body?.type === 1) {
-//       return Response.json({ type: 1 });
-//     }
+function verify(req: Request, body: string) {
+  const signature = req.headers.get("x-signature-ed25519")!;
+  const timestamp = req.headers.get("x-signature-timestamp")!;
 
-//     const command = body?.data?.name;
+  const isValid = nacl.sign.detached.verify(
+    Buffer.from(timestamp + body),
+    Buffer.from(signature, "hex"),
+    Buffer.from(PUBLIC_KEY, "hex"),
+  );
 
-//     if (command === "cipherline") {
-//       const date = new Date().toISOString().slice(0, 10);
-//       const puzzle = generateDaily(date);
-
-//       return Response.json({
-//         type: 4,
-//         data: {
-//           content:
-//             `📡 DAILY SIGNAL\n` +
-//             `cipher: ${puzzle.cipher}\n` +
-//             `difficulty: ${puzzle.difficulty}\n` +
-//             `encrypted:\n${puzzle.encrypted}`,
-//         },
-//       });
-//     }
-
-//     // ALWAYS return valid Discord response
-//     return Response.json({
-//       type: 4,
-//       data: { content: "Unknown signal." },
-//     });
-//   } catch (err) {
-//     return Response.json({
-//       type: 4,
-//       data: { content: "Signal error." },
-//     });
-//   }
-// }
-
-export async function POST() {
-  return Response.json({ type: 1 });
+  return isValid;
 }
 
-export async function GET() {
+export async function POST(req: Request) {
+  const body = await req.text();
+
+  // 🔥 VERIFY DISCORD SIGNATURE
+  if (!verify(req, body)) {
+    return new Response("invalid request", { status: 401 });
+  }
+
+  const json = JSON.parse(body);
+
+  // PING
+  if (json.type === 1) {
+    return Response.json({ type: 1 });
+  }
+
+  // COMMAND
+  if (json.type === 2) {
+    return Response.json({
+      type: 4,
+      data: {
+        content: "cipherline online",
+      },
+    });
+  }
+
   return new Response("ok", { status: 200 });
 }
