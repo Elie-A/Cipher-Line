@@ -1,5 +1,5 @@
 import dotenv from "dotenv";
-dotenv.config();
+dotenv.config({ path: ".env.local" });
 
 const token = process.env.DISCORD_TOKEN!;
 const clientId = process.env.DISCORD_CLIENT_ID!;

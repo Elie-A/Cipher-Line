@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import DiscordProvider from "@/components/DiscordProvider";
+import AppProviders from "@/components/AppProviders";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -60,7 +60,7 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full bg-zinc-950 text-zinc-100 font-mono">
-        <DiscordProvider>
+        <AppProviders>
           <div className="min-h-screen flex flex-col items-center">
             {/* HEADER */}
             <header className="w-full max-w-2xl px-4 py-4 border-b border-zinc-800">
@@ -83,7 +83,7 @@ export default function RootLayout({
               decrypt • survive • repeat
             </footer>
           </div>
-        </DiscordProvider>
+        </AppProviders>
       </body>
     </html>
   );

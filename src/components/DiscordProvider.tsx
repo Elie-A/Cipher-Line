@@ -13,13 +13,26 @@ export default function DiscordProvider({
       try {
         const sdk = getDiscordSdk();
 
-        if (!sdk) return;
+        if (!sdk) {
+          console.log("Not in browser");
+          return;
+        }
 
         await sdk.ready();
 
+        // 🔥 REAL CHECK (important)
+        const isActivity = Boolean(
+          new URLSearchParams(window.location.search).get("frame_id"),
+        );
+
+        if (!isActivity) {
+          console.log("Running in normal web mode (not Activity)");
+          return;
+        }
+
         console.log("CipherLine running inside Discord Activity");
       } catch (err) {
-        console.log("Not in Discord Activity mode");
+        console.log("Discord init failed", err);
       }
     }
 

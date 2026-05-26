@@ -1,5 +1,6 @@
 import { runSimulation } from "@/lib/sim/core";
-import { generateDaily } from "@/lib/game/daily";
+import { getToday } from "@/lib/game/today";
+import { getDailyPuzzle } from "@/lib/game/dailyStore";
 
 export async function POST(req: Request) {
   const body = await req.json();
@@ -22,9 +23,9 @@ export async function POST(req: Request) {
 
   const userId = body.member?.user?.id;
 
-  const date = new Date().toISOString().slice(0, 10);
+  const date = getToday();
 
-  const puzzle = generateDaily(date);
+  const puzzle = await getDailyPuzzle(date);
 
   // no guess yet, just fetch state
   const result = await runSimulation({

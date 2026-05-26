@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getUserId } from "@/lib/identity/getUserId";
+import { useDiscordUser } from "@/lib/discord/useDiscordUser";
 
 function corruptText(text: string, level: number) {
   if (!text) return "";
@@ -20,6 +20,8 @@ function corruptText(text: string, level: number) {
 }
 
 export default function Page() {
+  const { userId, isLoggedIn } = useDiscordUser();
+
   const [puzzle, setPuzzle] = useState<any>(null);
   const [guess, setGuess] = useState("");
   const [history, setHistory] = useState<string[]>([]);
@@ -37,13 +39,11 @@ export default function Page() {
   }, []);
 
   async function submit() {
-    const userId = getUserId();
-
     const res = await fetch("/api/guess", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        userId,
+        userId: userId ?? "guest",
         guess,
       }),
     });
@@ -92,7 +92,9 @@ export default function Page() {
       <div className="border border-white/10 p-4 rounded">
         <div className="flex justify-between text-xs opacity-60">
           <span>CIPHERLINE</span>
-          <span className="opacity-70">DAILY SIGNAL ACTIVE</span>
+          <span className="opacity-70">
+            {isLoggedIn ? "DISCORD SYNC ACTIVE" : "GUEST MODE"}
+          </span>
         </div>
 
         <div className="text-xs opacity-40 mt-1">

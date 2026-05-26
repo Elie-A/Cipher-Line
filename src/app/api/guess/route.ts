@@ -1,12 +1,14 @@
-import { generateDaily } from "@/lib/game/daily";
+import { getDailyPuzzle } from "@/lib/game/dailyStore";
 import { getProgress, updateProgress } from "@/lib/game/progress";
 import { submitGuessAtomic } from "@/lib/game/submitGuessAtomic";
+import { getToday } from "@/lib/game/today";
 
 export async function POST(req: Request) {
   const { userId, guess } = await req.json();
 
-  const date = new Date().toISOString().slice(0, 10);
-  const puzzle = generateDaily(date);
+  const date = getToday();
+
+  const puzzle = await getDailyPuzzle(date);
 
   const correct = guess?.trim().toUpperCase() === puzzle.answer.toUpperCase();
 

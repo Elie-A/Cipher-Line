@@ -6,13 +6,7 @@ export function getDiscordSdk() {
   if (typeof window === "undefined") return null;
 
   if (!discordSdk) {
-    const clientId = process.env.NEXT_PUBLIC_DISCORD_CLIENT_ID;
-
-    if (!clientId) {
-      throw new Error("Missing DISCORD CLIENT ID");
-    }
-
-    discordSdk = new DiscordSDK(clientId);
+    discordSdk = new DiscordSDK(process.env.NEXT_PUBLIC_DISCORD_CLIENT_ID!);
   }
 
   return discordSdk;

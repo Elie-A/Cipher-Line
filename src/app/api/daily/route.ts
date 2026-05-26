@@ -1,11 +1,12 @@
-import { generateDaily } from "@/lib/game/daily";
+import { getDailyPuzzle } from "@/lib/game/dailyStore";
+import { getToday } from "@/lib/game/today";
 
 export async function GET(req: Request) {
   const url = new URL(req.url);
-  const date =
-    url.searchParams.get("date") ?? new Date().toISOString().slice(0, 10);
 
-  const puzzle = generateDaily(date);
+  const date = getToday(url.searchParams.get("date") ?? undefined);
+
+  const puzzle = await getDailyPuzzle(date);
 
   return Response.json({
     date: puzzle.date,

@@ -2,24 +2,21 @@ import { getDiscordSdk } from "./sdk";
 
 export async function initDiscord() {
   try {
-    const discordSdk = getDiscordSdk();
+    const sdk = getDiscordSdk();
 
-    if (!discordSdk) {
-      console.log("Not in Discord environment");
-      return null;
-    }
+    if (!sdk) return null;
 
-    await discordSdk.ready();
+    await sdk.ready();
 
-    const auth = await discordSdk.commands.authenticate({
+    const auth = await sdk.commands.authenticate({
       access_token: null,
     });
 
-    console.log("Discord auth success:", auth);
+    console.log("Activity ready:", auth);
 
     return auth;
   } catch (err) {
-    console.log("Discord init failed or not in Activity", err);
+    console.log("Not in Discord Activity", err);
     return null;
   }
 }
