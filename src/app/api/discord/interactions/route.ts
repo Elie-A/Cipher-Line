@@ -40,37 +40,10 @@
 //   }
 // }
 
-export async function POST(req: Request) {
-  try {
-    const body = await req.json().catch(() => ({}));
+export async function POST() {
+  return Response.json({ type: 1 });
+}
 
-    // 1. Discord PING verification
-    if (body?.type === 1) {
-      return Response.json({ type: 1 });
-    }
-
-    // 2. Slash command
-    const command = body?.data?.name;
-
-    if (command === "cipherline") {
-      return Response.json({
-        type: 4,
-        data: {
-          content: "cipherline online",
-        },
-      });
-    }
-
-    // 3. ALWAYS respond
-    return Response.json({
-      type: 4,
-      data: { content: "ok" },
-    });
-  } catch (e) {
-    // 4. NEVER crash
-    return Response.json({
-      type: 4,
-      data: { content: "error" },
-    });
-  }
+export async function GET() {
+  return new Response("ok", { status: 200 });
 }
