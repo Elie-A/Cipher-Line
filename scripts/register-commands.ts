@@ -1,22 +1,30 @@
-import { REST, Routes } from "discord.js";
+import dotenv from "dotenv";
+dotenv.config();
 
 const token = process.env.DISCORD_TOKEN!;
 const clientId = process.env.DISCORD_CLIENT_ID!;
 const guildId = process.env.DISCORD_GUILD_ID!;
 
-const commands = [
-  {
-    name: "cipherline",
-    description: "Get today's encrypted signal",
-  },
-];
+const command = {
+  name: "cipherline",
+  description: "Decode the daily signal",
+};
 
-const rest = new REST({ version: "10" }).setToken(token);
+async function main() {
+  const res = await fetch(
+    `https://discord.com/api/v10/applications/${clientId}/guilds/${guildId}/commands`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bot ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(command),
+    },
+  );
 
-(async () => {
-  await rest.put(Routes.applicationGuildCommands(clientId, guildId), {
-    body: commands,
-  });
+  const data = await res.json();
+  console.log(data);
+}
 
-  console.log("Commands registered");
-})();
+main();
