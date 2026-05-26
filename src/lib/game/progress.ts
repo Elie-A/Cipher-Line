@@ -1,4 +1,6 @@
-import { kv } from "@vercel/kv";
+import { Redis } from "@upstash/redis";
+
+const redis = Redis.fromEnv();
 
 export type UserProgress = {
   attempts: number;
@@ -10,7 +12,7 @@ function key(userId: string, date: string) {
 }
 
 export async function getProgress(userId: string, date: string) {
-  const data = await kv.get<UserProgress>(key(userId, date));
+  const data = await redis.get<UserProgress>(key(userId, date));
 
   return (
     data || {
@@ -25,5 +27,5 @@ export async function updateProgress(
   date: string,
   progress: UserProgress,
 ) {
-  await kv.set(key(userId, date), progress);
+  await redis.set(key(userId, date), progress);
 }
