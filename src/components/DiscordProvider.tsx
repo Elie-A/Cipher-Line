@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { discordSdk } from "@/lib/discord/sdk";
-import { setAuth } from "@/lib/discord/auth";
+import { getDiscordSdk } from "@/lib/discord/sdk";
 
 export default function DiscordProvider({
   children,
@@ -12,15 +11,15 @@ export default function DiscordProvider({
   useEffect(() => {
     async function init() {
       try {
-        await discordSdk.ready();
+        const sdk = getDiscordSdk();
 
-        const auth = await discordSdk.commands.authenticate({
-          access_token: null,
-        });
+        if (!sdk) return;
 
-        setAuth(auth);
-      } catch {
-        // normal web mode
+        await sdk.ready();
+
+        console.log("CipherLine running inside Discord Activity");
+      } catch (err) {
+        console.log("Not in Discord Activity mode");
       }
     }
 
