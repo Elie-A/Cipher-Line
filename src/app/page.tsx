@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useDiscordUser } from "@/lib/discord/useDiscordUser";
+import { useDiscord } from "@/lib/discord/DiscordContext";
+import { isDiscordActivity } from "@/lib/discord/isDiscordActivity";
 
 function corruptText(text: string, level: number) {
   if (!text) return "";
@@ -20,7 +21,8 @@ function corruptText(text: string, level: number) {
 }
 
 export default function Page() {
-  const { userId, isLoggedIn } = useDiscordUser();
+  const { user, isReady } = useDiscord();
+  const isActivity = isDiscordActivity();
 
   const [puzzle, setPuzzle] = useState<any>(null);
   const [guess, setGuess] = useState("");
@@ -39,11 +41,13 @@ export default function Page() {
   }, []);
 
   async function submit() {
+    const userId = isActivity && user?.id ? user.id : "dev-user";
+
     const res = await fetch("/api/guess", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        userId: userId ?? "guest",
+        userId,
         guess,
       }),
     });
@@ -86,14 +90,19 @@ export default function Page() {
           ? "text-yellow-400 animate-pulse"
           : "text-cyan-300";
 
+  if (!isReady) {
+    return <div className="p-6 text-sm opacity-60">syncing signal…</div>;
+  }
+
   return (
     <div className={`font-mono space-y-6 p-4 ${shake ? "animate-pulse" : ""}`}>
       {/* HEADER */}
       <div className="border border-white/10 p-4 rounded">
         <div className="flex justify-between text-xs opacity-60">
           <span>CIPHERLINE</span>
+
           <span className="opacity-70">
-            {isLoggedIn ? "DISCORD SYNC ACTIVE" : "GUEST MODE"}
+            {isActivity ? "DISCORD SYNC ACTIVE" : "DEV MODE"}
           </span>
         </div>
 
