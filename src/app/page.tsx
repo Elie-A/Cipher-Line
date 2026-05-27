@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useDiscord } from "@/lib/discord/DiscordContext";
 import { isDiscordActivity } from "@/lib/discord/isDiscordActivity";
+import { getCanonicalUserId } from "@/lib/identity/getCanonicalUserId";
 
 function corruptText(text: string, level: number) {
   if (!text) return "";
@@ -41,7 +42,8 @@ export default function Page() {
   }, []);
 
   async function submit() {
-    const userId = isActivity && user?.id ? user.id : "dev-user";
+    // const userId = isActivity && user?.id ? user.id : "dev-user";
+    const userId = getCanonicalUserId(user?.id);
 
     const res = await fetch("/api/guess", {
       method: "POST",
