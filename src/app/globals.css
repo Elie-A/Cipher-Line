@@ -20,64 +20,33 @@
   }
 }
 
-/* body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
-} */
+/* ROOT RESET & NORMALIZATION
+  Forces Next.js/React layout nodes to take up the full viewport correctly.
+  This fixes the mathematical centering bias breaking your trailer alignments.
+*/
 html,
-body {
+body,
+body>div,
+#___next,
+#▼__next {
   background-color: #09090b;
-  /* zinc-950 */
   color: #f4f4f5;
   height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
 }
 
-.glitch {
-  animation: glitch 0.2s infinite;
+/* GLOBAL ANIMATIONS & UTILITIES
+  Renamed global .glitch to .global-glitch to prevent CSS collisions 
+  with the layout states in your specific pages.
+*/
+.global-glitch {
+  animation: globalGlitchAnim 0.2s infinite;
 }
 
-@keyframes glitch {
-  0% {
-    transform: translate(0);
-  }
-
-  25% {
-    transform: translate(-1px, 1px);
-  }
-
-  50% {
-    transform: translate(1px, -1px);
-  }
-
-  75% {
-    transform: translate(-1px, 0);
-  }
-
-  100% {
-    transform: translate(0);
-  }
-}
-
-.glow {
-  text-shadow: 0 0 8px currentColor;
-}
-
-@keyframes flicker {
-  0% {
-    opacity: 1;
-  }
-
-  50% {
-    opacity: 0.85;
-  }
-
-  100% {
-    opacity: 1;
-  }
-}
-
-@keyframes glitch {
+@keyframes globalGlitchAnim {
   0% {
     transform: translate(0);
   }
@@ -103,40 +72,47 @@ body {
   }
 }
 
-.scan-flicker {
-  animation: flicker 2.5s infinite;
+.glow {
+  text-shadow: 0 0 8px currentColor;
 }
 
-.glitch {
-  animation: glitch 0.2s infinite;
+.scan-flicker {
+  animation: globalFlickerAnim 2.5s infinite;
+}
+
+@keyframes globalFlickerAnim {
+  0% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.85;
+  }
+
+  100% {
+    opacity: 1;
+  }
 }
 
 .signal-box {
   border: 1px solid rgba(255, 255, 255, 0.08);
-
   background: rgba(0, 0, 0, 0.6);
-
   backdrop-filter: blur(6px);
 }
 
 .scanline {
   position: relative;
-
   overflow: hidden;
 }
 
 .scanline::after {
   content: "";
-
   position: absolute;
-
   inset: 0;
-
   background: repeating-linear-gradient(to bottom,
       rgba(255, 255, 255, 0.03),
       rgba(255, 255, 255, 0.03) 1px,
       transparent 1px,
       transparent 3px);
-
   pointer-events: none;
 }
