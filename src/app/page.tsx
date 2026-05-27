@@ -171,12 +171,16 @@ export default function Page() {
           value={guess}
           onChange={(e) => setGuess(e.target.value)}
           placeholder="decode attempt..."
-          className="w-full bg-black border border-white/10 p-3 rounded outline-none"
+          className="w-full bg-zinc-950 text-zinc-100 border border-white/10 p-3 rounded outline-none"
+          autoComplete="off"
+          autoCorrect="off"
+          autoCapitalize="none"
+          spellCheck={false}
         />
 
         <button
           onClick={submit}
-          className="w-full p-3 border border-white/10 hover:bg-white/5 transition"
+          className="w-full p-3 border border-white/10 bg-zinc-950 text-zinc-100 hover:bg-white/5 transition"
         >
           EXECUTE DECRYPTION
         </button>

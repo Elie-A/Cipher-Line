@@ -19,6 +19,7 @@ export const metadata: Metadata = {
     template: "%s | CipherLine",
   },
   description: "Daily cipher puzzle game. Decode the signal.",
+  themeColor: "#09090b",
 };
 
 function Logo() {
