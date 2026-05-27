@@ -1,61 +1,102 @@
-import { runSimulation } from "@/lib/sim/core";
+import { resolveGuess } from "@/lib/game/resolveGuess";
 import { getToday } from "@/lib/game/today";
-import { getDailyPuzzle } from "@/lib/game/dailyStore";
 
 export async function POST(req: Request) {
-  const body = await req.json();
+  try {
+    const body = await req.json();
 
-  // Discord verification
-  if (body.type === 1) {
-    return Response.json({ type: 1 });
-  }
+    // --------------------------------------------------
+    // Discord PING verification
+    // --------------------------------------------------
 
-  const command = body.data?.name;
+    if (body.type === 1) {
+      return Response.json({ type: 1 });
+    }
 
-  if (command !== "cipherline") {
+    // --------------------------------------------------
+    // Slash command validation
+    // --------------------------------------------------
+
+    const command = body.data?.name;
+
+    if (command !== "cipherline") {
+      return Response.json({
+        type: 4,
+        data: {
+          content: "Unknown signal.",
+        },
+      });
+    }
+
+    // --------------------------------------------------
+    // User identity
+    // --------------------------------------------------
+
+    const userId = body.member?.user?.id;
+
+    if (!userId) {
+      return Response.json({
+        type: 4,
+        data: {
+          content: "Signal source missing.",
+        },
+      });
+    }
+
+    // --------------------------------------------------
+    // Resolve game state
+    // --------------------------------------------------
+
+    const date = getToday();
+
+    // empty guess = fetch current state only
+    const result = await resolveGuess({
+      userId,
+      guess: "",
+      date,
+    });
+
+    // --------------------------------------------------
+    // Build response
+    // --------------------------------------------------
+
     return Response.json({
       type: 4,
+
       data: {
-        content: "Unknown signal.",
-      },
-    });
-  }
-
-  const userId = body.member?.user?.id;
-
-  const date = getToday();
-
-  const puzzle = await getDailyPuzzle(date);
-
-  // no guess yet, just fetch state
-  const result = await runSimulation({
-    userId,
-    guess: "",
-    date,
-  });
-
-  return Response.json({
-    type: 4,
-    data: {
-      content: `
+        content: `
 📡 DAILY SIGNAL
 
-difficulty: ${puzzle.difficulty}
-cipher: ${puzzle.cipher}
+difficulty: ${result.difficulty}
+cipher: ${result.cipher}
 
 status: ${result.signalState}
 
 attempts: ${result.attempts}/6
 
 encrypted:
-${puzzle.encrypted}
+${result.encrypted}
 
-hint:
-${result.revealed || "signal fragment unavailable"}
+${
+  result.solved
+    ? `answer:
+${result.answer}`
+    : ""
+}
 
 play:
 https://cipher-line.vercel.app
-      `,
-    },
-  });
+        `.trim(),
+      },
+    });
+  } catch (err) {
+    console.error("Interaction route error:", err);
+
+    return Response.json({
+      type: 4,
+      data: {
+        content: "Signal corruption detected.",
+      },
+    });
+  }
 }

@@ -1,6 +1,4 @@
-import { getDailyPuzzle } from "@/lib/game/dailyStore";
-import { getProgress, updateProgress } from "@/lib/game/progress";
-import { submitGuessAtomic } from "@/lib/game/submitGuessAtomic";
+import { resolveGuess } from "@/lib/game/resolveGuess";
 import { getToday } from "@/lib/game/today";
 
 export async function POST(req: Request) {
@@ -8,37 +6,11 @@ export async function POST(req: Request) {
 
   const date = getToday();
 
-  const puzzle = await getDailyPuzzle(date);
-
-  const correct = guess?.trim().toUpperCase() === puzzle.answer.toUpperCase();
-
-  const progress = await getProgress(userId, date);
-
-  const updatedProgress = {
-    attempts: progress.attempts + 1,
-    solved: correct || progress.solved,
-    memory: progress.memory,
-  };
-
-  // 1. save local progress (per day)
-  await updateProgress(userId, date, updatedProgress);
-
-  // 2. atomic stats + leaderboard update
-  const stats = await submitGuessAtomic({
+  const result = await resolveGuess({
     userId,
+    guess,
     date,
-    correct,
-    attempts: updatedProgress.attempts,
   });
 
-  return Response.json({
-    correct,
-    solved: updatedProgress.solved,
-    attempts: updatedProgress.attempts,
-    answer: updatedProgress.solved ? puzzle.answer : undefined,
-    encrypted: puzzle.encrypted,
-
-    // global system output
-    ...stats,
-  });
+  return Response.json(result);
 }
